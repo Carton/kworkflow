@@ -365,7 +365,7 @@ function test_modules_install_to()
 {
   local output
   local original="$PWD"
-  local make_cmd="make INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=${test_path} modules_install"
+  local make_cmd="make INSTALL_MOD_STRIP=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=${test_path} modules_install"
 
   declare -a expected_cmd=(
     '* Preparing modules'
@@ -416,7 +416,7 @@ function test_modules_install_to_with_env()
 {
   local output
   local original="$PWD"
-  local make_cmd="make INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=${test_path} modules_install"
+  local make_cmd="make INSTALL_MOD_STRIP=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=${test_path} modules_install"
 
   make_cmd+=" O=${KW_CACHE_DIR}/envs/fake_env"
 
@@ -448,7 +448,7 @@ function test_modules_install_to_with_env_local()
 {
   local output
   local original="$PWD"
-  local make_cmd="sudo true && sudo -E make INSTALL_MOD_STRIP=1 modules_install"
+  local make_cmd="sudo true && sudo -E make INSTALL_MOD_STRIP=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install"
 
   make_cmd+=" O=${KW_CACHE_DIR}/envs/fake_env"
 
@@ -559,7 +559,7 @@ function test_kernel_modules()
   rsync_utils="${CONFIG_RSYNC} ${kernel_install_path}/utils.sh ${CONFIG_REMOTE}:${remote_path}/ ${STD_RSYNC_FLAG}"
 
   # Install modules
-  make_install_cmd="make INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=${local_remote_path}/ modules_install"
+  make_install_cmd="make INSTALL_MOD_STRIP=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=${local_remote_path}/ modules_install"
 
   # Compress modules for sending
   compress_cmd="tar --auto-compress --directory='${local_remote_path}/lib/modules/' --create --file='${to_deploy_path}/${version}.tar' ${version}"
@@ -597,7 +597,7 @@ function test_kernel_modules()
   output=$(modules_install 2 'fake/path' 'TEST_MODE')
   declare -a expected_cmd=(
     "$PREPARING_MODULES_MSG"
-    'sudo true && sudo -E make INSTALL_MOD_STRIP=1 modules_install'
+    'sudo true && sudo -E make INSTALL_MOD_STRIP=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install'
   )
 
   compare_command_sequence '' "$LINENO" 'expected_cmd' "$output"

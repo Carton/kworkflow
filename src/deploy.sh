@@ -858,6 +858,9 @@ function modules_install_to()
   local strip_modules_debug='INSTALL_MOD_STRIP=1 '
   local output_kbuild_flag
   local env_base_path="${PWD}/"
+  local arch
+  local cross_compile
+  local platform_ops=''
 
   flag=${flag:-'SILENT'}
 
@@ -875,10 +878,17 @@ function modules_install_to()
     fi
   fi
 
+  arch=${build_config[arch]:-${configurations[arch]}}
+  cross_compile=${build_config[cross_compile]:-${configurations[cross_compile]}}
+
+  # Build command
+  [[ -n "$arch" ]] && platform_ops+="ARCH=${arch}"
+  [[ -n "$cross_compile" ]] && platform_ops+=" CROSS_COMPILE=${cross_compile}"
+
   if [[ "$local_deploy" == 'local' ]]; then
-    cmd="sudo true && sudo -E make ${strip_modules_debug}modules_install${output_kbuild_flag}"
+    cmd="sudo true && sudo -E make ${strip_modules_debug}${platform_ops} modules_install${output_kbuild_flag}"
   else
-    cmd="make ${strip_modules_debug}INSTALL_MOD_PATH=$install_to modules_install${output_kbuild_flag}"
+    cmd="make ${strip_modules_debug}${platform_ops} INSTALL_MOD_PATH=$install_to modules_install${output_kbuild_flag}"
   fi
 
   if [[ "$flag" != 'VERBOSE' && -f "${env_base_path}/modules.order" ]]; then
@@ -1193,7 +1203,7 @@ function build_kw_kernel_package()
   mkdir --parents "$cache_kw_pkg_modules_path"
 
   # 1. Prepare modules
-  modules_install_to "${cache_kw_pkg_modules_path}" "$flag"
+  modules_install_to "${cache_kw_pkg_modules_path}" "$flag" ''
 
   # 2. Copying .config file, we don't want to mislead developers by deploying
   # the wrong config file.
